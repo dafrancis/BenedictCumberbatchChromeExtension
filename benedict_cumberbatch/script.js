@@ -1,4 +1,5 @@
-
+/*jslint sloppy: true*/
+/*globals document: false*/
 var firstnamelist = ["Bumblebee", "Bandersnatch", "Broccoli", "Rinkydink", "Bombadil", "Boilerdang",
                      "Bandicoot", "Fragglerock", "Muffintop", "Crumplesack", "Congleton", "Blubberdick",
                      "Buffalo", "Benadryl", "Butterfree", "Burberry", "Whippersnatch", "Buttermilk",
@@ -19,7 +20,7 @@ var lastnamelist = ["Coddleswort", "Curdlesnoot", "Calldispatch", "Humperdinck",
                     "Talisman", "Candlestick", "Chesterfield", "Bumbersplat", "Scratchnsniff",
                     "Snugglesnatch", "Charizard", "Ballsacksnip", "Carrotstick", "Cumbercooch",
                     "Crackerjack", "Crucifix", "Cuckatoo", "Cockletit", "Collywog", "Gigglesnort",
-                    "Capncrunch", "Covergirl", "Cumbersnatch", "Countryside","Coggleswort",
+                    "Capncrunch", "Covergirl", "Cumbersnatch", "Countryside", "Coggleswort",
                     "Splishnsplash", "Copperwire", "Animorph", "Curdledmilk", "Cheddarcheese",
                     "Cottagecheese", "Crumplehorn", "Snickersbar", "Banglesnatch", "Stinkyrash",
                     "Cameltoe", "Chickenbroth", "Concubine", "Candygram", "Moldyspore", "Chuckecheese",
@@ -36,41 +37,15 @@ function getRandFromList(list) {
     return list[Math.floor(Math.random() * list.length)];
 }
 
-function walk(node) {
-    // I stole this function from here:
-    // http://is.gd/mwZp7E
-    
-    var child, next;
-
-    switch ( node.nodeType )  
-    {
-        case 1:  // Element
-        case 9:  // Document
-        case 11: // Document fragment
-            child = node.firstChild;
-            while ( child ) 
-            {
-                next = child.nextSibling;
-                walk(child);
-                child = next;
-            }
-            break;
-
-        case 3: // Text node
-            handleText(node);
-            break;
-    }
-}
-
 function handleText(textNode) {
     var v = textNode.nodeValue;
 
-    v = v.replace(/\bBenedict Cumberbatch\b/ig, function generate_fullname() {
+    v = v.replace(/\bBenedict Cumberbatch\b/ig, function () {
         var random1 = getRandFromList(firstnamelist),
             random2 = getRandFromList(lastnamelist),
             randomfull = getRandFromList(fullnamelist),
             numberroll = Math.floor(Math.random() * 10) + 1;
-        
+
         return numberroll > 9 ? randomfull : (random1 + " " + random2);
     });
 
@@ -85,12 +60,35 @@ function handleText(textNode) {
     textNode.nodeValue = v;
 }
 
+function walk(node) {
+    // I stole this function from here:
+    // http://is.gd/mwZp7E
+
+    var child, next;
+
+    switch (node.nodeType) {
+        case 1:  // Element
+        case 9:  // Document
+        case 11: // Document fragment
+            child = node.firstChild;
+            while (child) {
+                next = child.nextSibling;
+                walk(child);
+                child = next;
+            }
+            break;
+        case 3: // Text node
+            handleText(node);
+            break;
+    }
+}
+
 var timeout = null;
 document.addEventListener('DOMSubtreeModified', function () {
     if (timeout) {
         clearTimeout(timeout);
     }
-    setTimeout(function(){
+    setTimeout(function () {
         walk(document.body);
     }, 500);
 });
